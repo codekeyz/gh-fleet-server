@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "tsc --watch & nodemon dist"
+    "start": "node .",
+    "build": "tsc --watch & nodemon dist"
   },
   "description": "Transport Backend System",
   "author": {

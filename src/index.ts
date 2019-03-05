@@ -1,3 +1,8 @@
-﻿import * as app from './config/express';
+﻿import * as http from './config/socket.io';
+import * as config from './config/config';
 
-console.log(app.routes);
+http.listen(config.port, () => {
+  console.log(`Server started on port ${config.port} (${config.env})`);
+});
+
+export = http;
