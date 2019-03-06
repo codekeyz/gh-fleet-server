@@ -24,8 +24,10 @@ app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
+console.log(config.version);
+
 // API router
-app.use('/api/', routes);
+app.use(`/api/v${config.version}`, routes);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
