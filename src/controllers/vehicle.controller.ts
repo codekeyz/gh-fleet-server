@@ -1,0 +1,7 @@
+class VehicleController {
+
+
+}
+
+
+export = VehicleController;
