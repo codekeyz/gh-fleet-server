@@ -4,7 +4,7 @@
     "target": "es6",
     "lib": ["es6"],
     "sourceMap": false,
-    "outDir": "./dist"
+    "outDir": "./dist/server"
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules"]
