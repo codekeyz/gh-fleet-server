@@ -17,13 +17,7 @@ const envVarsSchema = Joi.object({
   MONGO_HOST: Joi.string()
     .required()
     .description('Maria DB host url'),
-  MONGO_PORT: Joi.number().default(3306),
-  API_VERSION: Joi.number().default(parseFloat(packJson.version).toPrecision(2)),
-  DB_NAME: Joi.string().default('Transport'),
-  DB_USERNAME: Joi.string().required()
-      .description('Database Username'),
-  DB_PASSWORD: Joi.string().required()
-      .description('Database Password')
+  API_VERSION: Joi.number().default(parseFloat(packJson.version).toPrecision(2))
 })
   .unknown()
   .required();
@@ -40,11 +34,7 @@ const config = {
   version: envVars.API_VERSION,
   mongodb: {
     debug: envVars.MONGOOSE_DEBUG,
-    host: envVars.MONGO_HOST,
-    port: parseInt(envVars.MONGO_PORT),
-    name: envVars.DB_NAME,
-    user: envVars.DB_USERNAME,
-    pass: envVars.DB_PASSWORD
+    host: envVars.MONGO_HOST
   }
 };
 
