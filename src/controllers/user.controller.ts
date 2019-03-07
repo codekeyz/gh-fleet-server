@@ -1,35 +1,20 @@
-import {Application, Request, Response, Router} from 'express';
-import {injectable} from "inversify";
-import {UserContract} from '../../di/interfaces';
-import express = require('express');
-import "reflect-metadata";
+import {controller, httpGet, interfaces} from 'inversify-express-utils';
+import {inject} from 'inversify';
+import {UserService} from '../services/user.service';
+import {NextFunction, Request, Response} from 'express';
+import TYPES from '../config/di/types';
 
+@controller('/users')
+export class UserController implements interfaces.Controller {
 
-@injectable()
-class UserController implements UserContract {
+    constructor(@inject(TYPES.UserService) private userSvc: UserService) {
 
-    private router = express.Router();
-
-    initialize(app: Application) {
-        app.use(this.getRouter());
     }
 
-    login(req: Request, res: Response): void {
-    }
-
-    logout(): void {
-    }
-
-    register(req: Request, res: Response): void {
-    }
-
-    private getRouter(): Router {
-
-        // User Controller REST METHODS HERE
-
-        return this.router;
+    @httpGet('*')
+    private index(req: Request, res: Response, next: NextFunction): string {
+        return 'Hello world';
     }
 
 }
 
-export = UserController;
