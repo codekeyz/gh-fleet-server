@@ -2,7 +2,6 @@
 import * as config from './config/config';
 import './config/mongoose';
 
-
 http.listen(config.port, () => {
-  console.log(`Server started on ${config.port} (${config.env})`);
+    console.log(`Server started on ${config.port} (${config.env})`);
 });
