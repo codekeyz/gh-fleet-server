@@ -13,11 +13,17 @@ const envVarsSchema = Joi.object({
     .allow(['development', 'production'])
     .default('development'),
   SERVER_PORT: Joi.number().default(4040),
-  MARIADB_HOST: Joi.string()
+  MONGOOSE_DEBUG: Joi.boolean().default(true),
+  MONGO_HOST: Joi.string()
     .required()
     .description('Maria DB host url'),
-  MARIADB_PORT: Joi.number().default(3306),
-  API_VERSION: Joi.number().default(parseFloat(packJson.version).toPrecision(2))
+  MONGO_PORT: Joi.number().default(3306),
+  API_VERSION: Joi.number().default(parseFloat(packJson.version).toPrecision(2)),
+  DB_NAME: Joi.string().default('Transport'),
+  DB_USERNAME: Joi.string().required()
+      .description('Database Username'),
+  DB_PASSWORD: Joi.string().required()
+      .description('Database Password')
 })
   .unknown()
   .required();
@@ -32,9 +38,13 @@ const config = {
   port: envVars.SERVER_PORT,
   jwtSecret: envVars.JWT_SECRET,
   version: envVars.API_VERSION,
-  mariadb: {
-    host: envVars.MARIADB_HOST,
-    port: envVars.MARIADB_PORT
+  mongodb: {
+    debug: envVars.MONGOOSE_DEBUG,
+    host: envVars.MONGO_HOST,
+    port: parseInt(envVars.MONGO_PORT),
+    name: envVars.DB_NAME,
+    user: envVars.DB_USERNAME,
+    pass: envVars.DB_PASSWORD
   }
 };
 
