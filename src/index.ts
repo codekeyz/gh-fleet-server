@@ -1,6 +1,6 @@
 ﻿import * as http from './config/socket.io';
 import * as config from './config/config';
-import './config/sequelize';
+import './config/mongoose';
 
 
 http.listen(config.port, () => {
