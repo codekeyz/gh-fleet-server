@@ -4,7 +4,9 @@
     "target": "es6",
     "lib": ["es6"],
     "sourceMap": false,
-    "outDir": "./dist/server"
+    "outDir": "./dist/server",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules"]
