@@ -8,6 +8,7 @@ import * as config from './config';
 mongoose.set('useCreateIndex', true);
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
+mongoose.Promise = Promise;
 
 mongoose.connect(config.mongodb.host, { keepAlive: true, useNewUrlParser: true });
 mongoose.connection.on('error', () => {

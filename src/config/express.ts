@@ -23,11 +23,8 @@ container.bind<UserService>(TYPES.UserService).to(UserService);
 container.bind<DriverService>(TYPES.DriverService).to(DriverService);
 container.bind<VehicleService>(TYPES.VehicleService).to(VehicleService);
 
-// set up bindings
-container.bind<UserService>('UserService').to(UserService);
-
 // create server
-let server = new InversifyExpressServer(container);
+let server = new InversifyExpressServer(container, null , {rootPath: `/api/v${config.version}`});
 server.setConfig(app => {
 
     if (config.env === 'development') {
