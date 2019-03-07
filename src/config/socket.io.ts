@@ -5,7 +5,7 @@ const io = require('socket.io')(http);
 
 io.on('connection', socket => {
 
-    socket.in('').
+    socket.in('');
 
 });
 
