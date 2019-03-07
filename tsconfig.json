@@ -4,7 +4,7 @@
     "target": "es6",
     "lib": ["es6"],
     "sourceMap": false,
-    "outDir": "./dist/server",
+    "outDir": "./dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
