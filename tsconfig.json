@@ -5,6 +5,7 @@
     "lib": ["es6"],
     "sourceMap": false,
     "outDir": "./dist",
+    "types": ["reflect-metadata"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
