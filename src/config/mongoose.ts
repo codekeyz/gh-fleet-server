@@ -5,7 +5,11 @@ import util = require('util');
 
 import * as config from './config';
 
-mongoose.connect(config.mongodb.host, { keepAlive: true});
+mongoose.set('useCreateIndex', true);
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+
+mongoose.connect(config.mongodb.host, { keepAlive: true, useNewUrlParser: true });
 mongoose.connection.on('error', () => {
     throw new Error(`unable to connect to database: ${config.mongodb.host}`);
 });
