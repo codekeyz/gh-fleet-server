@@ -17,7 +17,7 @@ const envVarsSchema = Joi.object({
   MONGO_HOST: Joi.string()
     .required()
     .description('Maria DB host url'),
-  API_VERSION: Joi.number().default(parseFloat(packJson.version).toPrecision(2))
+  API_VERSION: Joi.number().default(parseInt(packJson.version))
 })
   .unknown()
   .required();

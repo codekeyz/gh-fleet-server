@@ -1,8 +1,10 @@
 import { Document, model as MongooseModel, Schema} from 'mongoose';
+import {boolean} from 'joi';
 
 export interface IVehicle extends Document {
     name: string;
     color: string;
+    owner: string;
     license_plate: string;
     fuel_volume_units: string;
     vehicle_type_model: string;
@@ -22,6 +24,10 @@ export const VehicleSchema = new Schema({
     license_plate: {
         type: String
     },
+    archived: {
+        type: Boolean,
+        default: false
+    },
     fuel_volume_units: {
         type: String,
         required: true,
@@ -37,7 +43,8 @@ export const VehicleSchema = new Schema({
     vehicle_type_name: {
         type: String,
         required: true
-    }
+    },
+    owner: { type: Schema.Types.ObjectId, ref: 'User' },
 }, {
     versionKey: false,
     timestamps: true

@@ -6,6 +6,7 @@ export function sanitizeUserData(data: IUser) {
         username: data.username,
         email: data.email,
         createdAt: data.createdAt,
-        updatedAt: data.updatedAt
+        updatedAt: data.updatedAt,
+        vehicles: data.vehicles
     }
 }

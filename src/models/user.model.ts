@@ -1,6 +1,6 @@
-import mongoose = require('mongoose');
 import bcrypt = require('bcrypt');
-import {Document, model as MongooseModel} from 'mongoose';
+import {Document, model as MongooseModel, Schema} from 'mongoose';
+import {IVehicle} from './vehicle.model';
 
 export interface IUser extends Document {
     email: string;
@@ -8,10 +8,11 @@ export interface IUser extends Document {
     telephone: string;
     createdAt: Date;
     updatedAt: Date;
+    vehicles: IVehicle[],
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-export const UserSchema = new mongoose.Schema({
+export const UserSchema = new Schema({
     username: {
         type: String,
         required: true,
@@ -31,6 +32,7 @@ export const UserSchema = new mongoose.Schema({
     password: {
         type: String
     },
+    vehicles: [{ type: Schema.Types.ObjectId, ref: 'Vehicle' }]
 }, {
     versionKey: false,
     timestamps: true
@@ -60,7 +62,7 @@ UserSchema.methods.comparePassword = function (passw): Promise<boolean> {
     })
 };
 
-UserSchema.methods.toJSON = function () {
+UserSchema.methods.toJSON = function<IUser> () {
     const obj = this.toObject();
     delete obj.password;
     return obj;
