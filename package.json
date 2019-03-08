@@ -6,6 +6,10 @@
     "start": "node .",
     "build": "tsc --watch & nodemon dist"
   },
+  "engines": {
+    "node": "10.x",
+    "npm": "6.X"
+  },
   "description": "Transport Backend System",
   "author": {
     "name": "Precious Keyz",
