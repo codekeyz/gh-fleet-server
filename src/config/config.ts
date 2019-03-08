@@ -29,7 +29,6 @@ if (error) {
 const config = {
     env: envVars.NODE_ENV,
     port: envVars.SERVER_PORT,
-    jwtSecret: envVars.JWT_SECRET,
     version: envVars.API_VERSION,
     mongodb: {
         debug: envVars.MONGOOSE_DEBUG,
