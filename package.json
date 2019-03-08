@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node .",
+    "postinstall": "tsc --build",
     "build": "tsc --watch & nodemon dist"
   },
   "engines": {
