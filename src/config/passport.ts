@@ -22,13 +22,12 @@ const jwtLogin = new JWTStrategy({
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: config.jwtSecret
 }, async (payload, done) => {
-    let user = await User.findById(payload.id);
+    let user = await User.findById(payload.user._id);
     if (!user) {
         return done(null, false);
     }
     done(null, user);
 });
-
 
 passport.use('jwt', jwtLogin);
 passport.use('local', localLogin);
