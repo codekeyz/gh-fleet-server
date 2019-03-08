@@ -4,9 +4,14 @@ import * as config from './config';
 import {Container} from 'inversify';
 import {UserService} from '../services/user.service';
 import {InversifyExpressServer} from 'inversify-express-utils';
+import './mongoose';
+import './firebase';
 import '../controllers/user.controller';
 import '../controllers/vehicle.controller'
 import '../controllers/driver.controller'
+import {DriverService} from '../services/driver.service';
+import {VehicleService} from '../services/vehicle.service';
+import {FirebaseService} from '../services/firebase.service';
 import logger = require('morgan');
 import bodyParser = require('body-parser');
 import compress = require('compression');
@@ -14,17 +19,16 @@ import helmet = require('helmet');
 import cors = require('cors');
 import httpError = require('http-errors');
 import passport = require('passport');
-import {DriverService} from '../services/driver.service';
-import {VehicleService} from '../services/vehicle.service';
 
 // load everything needed to the Container
 let container = new Container();
 container.bind<UserService>(TYPES.UserService).to(UserService);
 container.bind<DriverService>(TYPES.DriverService).to(DriverService);
 container.bind<VehicleService>(TYPES.VehicleService).to(VehicleService);
+container.bind<FirebaseService>(TYPES.FirebaseService).to(FirebaseService);
 
 // create server
-let server = new InversifyExpressServer(container, null , {rootPath: `/api/v${config.version}`});
+let server = new InversifyExpressServer(container, null, {rootPath: `/api/v${config.version}`});
 server.setConfig(app => {
 
     if (config.env === 'development') {
