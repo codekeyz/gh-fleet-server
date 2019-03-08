@@ -7,14 +7,10 @@ import {VehicleService} from '../services/vehicle.service';
 @controller('/vehicles')
 export class VehicleController {
 
-    constructor(@inject(TYPES.VehicleService) private vehicleSvc: VehicleService) {
+    constructor(@inject(TYPES.VehicleService) private vehicleSvc: VehicleService) {}
 
-    }
-
-    @httpGet('*')
+    @httpGet('/')
     private index(req: Request, res: Response, next: NextFunction): string {
         return 'Hello world';
     }
-
-
 }
