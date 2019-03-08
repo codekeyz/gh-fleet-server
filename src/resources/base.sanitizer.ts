@@ -20,8 +20,6 @@ interface BaseSanitizer<D> {
      * @param wrap
      */
     single(data: D, wrap?: boolean): {};
-
-    handleCollection(datalist: D[]);
 }
 
 export = BaseSanitizer;

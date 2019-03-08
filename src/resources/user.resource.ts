@@ -3,11 +3,11 @@ import BaseSanitizer = require('./base.sanitizer');
 
 class UserResource implements BaseSanitizer<IUser> {
 
-    collection(datalist: IUser[]): {}[] {
+    public collection(datalist: IUser[]): {}[] {
         return [];
     }
 
-    single(data: IUser, wrap?: boolean): {} {
+    public single(data: IUser, wrap?: boolean): {} {
         let result = {
             id: data._id,
             username: data.username,
@@ -18,7 +18,7 @@ class UserResource implements BaseSanitizer<IUser> {
         return wrap === true ? {data: result} : result;
     }
 
-
+    handleCollection(datalist: IUser[]) {}
 }
 
 export = new UserResource();
