@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {IUser, userModel as User} from '../models/user.model';
 import * as config from '../config/config';
-import * as moment from 'moment';
+import moment = require('moment');
 import jwt = require('jwt-simple');
 
 @injectable()
@@ -11,13 +11,16 @@ export class UserService {
         let expires = moment().utc().add({days: 7}).unix();
         let token = jwt.encode({
             exp: expires,
-            id: user._id
+            user: user
         }, config.jwtSecret);
 
         return {
-            token: "Token " + token,
+            issuer: 'iam@user.dev',
+            token: `Bearer ${token}`,
             expires: moment.unix(expires).format(),
-            user: user._id
+            // @ts-ignore
+            role: user.constructor.modelName,
+            id: user._id
         };
     };
 
