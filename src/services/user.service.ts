@@ -15,7 +15,7 @@ export class UserService {
         }, config.jwtSecret);
 
         return {
-            token: "Bearer " + token,
+            token: "Token " + token,
             expires: moment.unix(expires).format(),
             user: user._id
         };
@@ -33,7 +33,7 @@ export class UserService {
         return User.findOne({email})
     };
 
-    public createUser = function (data) {
+    public createUser = function (data: IUser) {
         let user = new User(data);
         return user.save();
     };
