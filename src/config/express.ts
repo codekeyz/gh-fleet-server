@@ -12,13 +12,13 @@ import '../controllers/driver.controller'
 import {DriverService} from '../services/driver.service';
 import {VehicleService} from '../services/vehicle.service';
 import {FirebaseService} from '../services/firebase.service';
+import {UserLoggedinMiddleware} from '../middlewares/user.loggedin.middleware';
 import logger = require('morgan');
 import bodyParser = require('body-parser');
 import compress = require('compression');
 import helmet = require('helmet');
 import cors = require('cors');
 import httpError = require('http-errors');
-import passport = require('passport');
 
 // load everything needed to the Container
 let container = new Container();
@@ -26,7 +26,7 @@ container.bind<UserService>(TYPES.UserService).to(UserService);
 container.bind<DriverService>(TYPES.DriverService).to(DriverService);
 container.bind<VehicleService>(TYPES.VehicleService).to(VehicleService);
 container.bind<FirebaseService>(TYPES.FirebaseService).to(FirebaseService);
-
+container.bind<UserLoggedinMiddleware>(TYPES.UserLoggedInMiddleWare).to(UserLoggedinMiddleware);
 // create server
 let server = new InversifyExpressServer(container, null, {rootPath: `/api/v${config.version}`});
 server.setConfig(app => {
@@ -46,9 +46,6 @@ server.setConfig(app => {
 
     // enable CORS - Cross Origin Resource Sharing
     app.use(cors());
-
-    // Setup passport
-    app.use(passport.initialize());
 });
 
 // setup Error Middleware
