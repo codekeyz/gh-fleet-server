@@ -11,7 +11,12 @@ const envVarsSchema = Joi.object({
     NODE_ENV: Joi.string()
         .allow(['development', 'production'])
         .default('development'),
-    SERVER_PORT: Joi.number().default(4040),
+    SERVER_PORT: Joi
+        .when('NODE_ENV', {
+            is: Joi.string().equal('development'),
+            then: Joi.string().default(4040),
+            otherwise: Joi.string().default(process.env.PORT)
+        }),
     MONGOOSE_DEBUG: Joi.boolean().default(true),
     MONGO_HOST: Joi.string()
         .required()
@@ -29,7 +34,6 @@ if (error) {
 const config = {
     env: envVars.NODE_ENV,
     port: envVars.SERVER_PORT,
-    jwtSecret: envVars.JWT_SECRET,
     version: envVars.API_VERSION,
     mongodb: {
         debug: envVars.MONGOOSE_DEBUG,
