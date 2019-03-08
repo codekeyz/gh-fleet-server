@@ -4,9 +4,12 @@ import {UserService} from '../services/user.service';
 import {Request, Response} from 'express';
 import TYPES from '../config/di/types';
 import {check, validationResult} from 'express-validator/check';
-import {sanitizeUserData} from '../resources/sanitizers';
-import bcrypt = require('bcrypt');
 import {VehicleService} from '../services/vehicle.service';
+import bcrypt = require('bcrypt');
+import userResource = require('../resources/user.resource');
+import vehicleResource = require('../resources/vehicle.resource');
+
+
 
 const passport = require('../config/passport');
 
@@ -17,7 +20,7 @@ export class UserController implements interfaces.Controller {
                 @inject(TYPES.VehicleService) private _vhSvc: VehicleService) {
     }
 
-      @httpPost('/login',
+    @httpPost('/login',
         check('email')
             .isEmail()
             .withMessage('Email field is required'),
@@ -45,7 +48,7 @@ export class UserController implements interfaces.Controller {
         return res.status(200).json(this._userSvc.genToken(user));
     }
 
-     @httpPost('/register',
+    @httpPost('/register',
         check('username')
             .isLength({min: 5})
             .withMessage('Username field is required'),
@@ -67,29 +70,29 @@ export class UserController implements interfaces.Controller {
         req.body.hashedPassword = bcrypt.hashSync(req.body.password, 10);
         return this._userSvc.createUser(req.body)
             .then(result => {
-                return res.status(200).send(sanitizeUserData(result.toJSON()));
+                return res.status(200).send(userResource.single(result));
             })
             .catch(err => {
                 return res.status(400).json(err);
             })
     }
 
-     @httpGet('/me',
+    @httpGet('/me',
         passport.authenticate('jwt', {session: false})
     )
     public getMyAccount(req: Request, res: Response) {
-        return res.json(sanitizeUserData(req.user));
+        return res.json(userResource.single(req.user));
     }
 
     @httpPost('/me/vehicles',
         passport.authenticate('jwt', {session: false})
     )
-    public async addVehicle(req: Request, res: Response) {
+    public async postVehicle(req: Request, res: Response) {
         let user = await this._userSvc.findById(req.user.id).exec();
         let vh = await this._vhSvc.createVehicle(req.body);
         user.vehicles.push(vh);
-        let result = await user.save();
-        return res.json(result);
+        const result = await user.save();
+        return res.json(await vehicleResource.collection(result.vehicles));
     }
 
     @httpGet('/me/vehicles',
@@ -97,7 +100,7 @@ export class UserController implements interfaces.Controller {
     )
     public async getMyVehicles(req: Request, res: Response) {
         let result = await this._userSvc.findById(req.user.id).populate('vehicles').exec();
-        return res.json(sanitizeUserData(result))
+        return res.json(await vehicleResource.collection(result.vehicles))
     }
 }
 
