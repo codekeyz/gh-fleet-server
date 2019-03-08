@@ -6,15 +6,18 @@ import TYPES from '../config/di/types';
 import {check, validationResult} from 'express-validator/check';
 import {sanitizeUserData} from '../resources/sanitizers';
 import bcrypt = require('bcrypt');
+import {VehicleService} from '../services/vehicle.service';
+
 const passport = require('../config/passport');
 
 @controller('/users')
 export class UserController implements interfaces.Controller {
 
-    constructor(@inject(TYPES.UserService) private userSvc: UserService) {
+    constructor(@inject(TYPES.UserService) private _userSvc: UserService,
+                @inject(TYPES.VehicleService) private _vhSvc: VehicleService) {
     }
 
-    @httpPost('/login',
+      @httpPost('/login',
         check('email')
             .isEmail()
             .withMessage('Email field is required'),
@@ -27,7 +30,7 @@ export class UserController implements interfaces.Controller {
             return res.status(422).json({errors: errors.array()});
         }
 
-        let user = await this.userSvc.findByEmail(req.body.email).exec();
+        let user = await this._userSvc.findByEmail(req.body.email).exec();
         if (!user) {
             return res.status(401)
                 .json({message: 'Authentication failed', status: 401, success: false});
@@ -39,10 +42,10 @@ export class UserController implements interfaces.Controller {
                 .json({message: 'Authentication failed', status: 401, success: false});
         }
 
-        return res.status(200).json(this.userSvc.genToken(user));
+        return res.status(200).json(this._userSvc.genToken(user));
     }
 
-    @httpPost('/register',
+     @httpPost('/register',
         check('username')
             .isLength({min: 5})
             .withMessage('Username field is required'),
@@ -62,7 +65,7 @@ export class UserController implements interfaces.Controller {
 
         // Hash the User Password
         req.body.hashedPassword = bcrypt.hashSync(req.body.password, 10);
-        return this.userSvc.createUser(req.body)
+        return this._userSvc.createUser(req.body)
             .then(result => {
                 return res.status(200).send(sanitizeUserData(result.toJSON()));
             })
@@ -71,13 +74,30 @@ export class UserController implements interfaces.Controller {
             })
     }
 
-    @httpGet('/me',
+     @httpGet('/me',
         passport.authenticate('jwt', {session: false})
     )
     public getMyAccount(req: Request, res: Response) {
         return res.json(sanitizeUserData(req.user));
     }
 
+    @httpPost('/me/vehicles',
+        passport.authenticate('jwt', {session: false})
+    )
+    public async addVehicle(req: Request, res: Response) {
+        let user = await this._userSvc.findById(req.user.id).exec();
+        let vh = await this._vhSvc.createVehicle(req.body);
+        user.vehicles.push(vh);
+        let result = await user.save();
+        return res.json(result);
+    }
 
+    @httpGet('/me/vehicles',
+        passport.authenticate('jwt', {session: false})
+    )
+    public async getMyVehicles(req: Request, res: Response) {
+        let result = await this._userSvc.findById(req.user.id).populate('vehicles').exec();
+        return res.json(sanitizeUserData(result))
+    }
 }
 
