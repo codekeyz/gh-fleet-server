@@ -1,4 +1,4 @@
-import {controller, httpGet, httpPost, interfaces} from 'inversify-express-utils';
+import {controller, httpGet, httpPost, httpPut, interfaces, requestParam} from 'inversify-express-utils';
 import {inject} from 'inversify';
 import {UserService} from '../services/user.service';
 import {Request, Response} from 'express';
@@ -8,12 +8,8 @@ import {VehicleService} from '../services/vehicle.service';
 import {FirebaseService} from '../services/firebase.service';
 import userResource = require('../resources/user.resource');
 import vehicleResource = require('../resources/vehicle.resource');
+import '../typings/express.user.module';
 
-declare module "express" { // declare module "express-serve-static-core"
-    export interface Request {
-        user: any
-    }
-}
 
 @controller('/users')
 export class UserController implements interfaces.Controller {
@@ -26,7 +22,7 @@ export class UserController implements interfaces.Controller {
     @httpGet('/logout',
         TYPES.UserLoggedInMiddleWare)
     public async logout(req: Request, res: Response) {
-        await this._firebSvc.getAuth().revokeRefreshTokens(req.body.user.uid);
+        await this._firebSvc.getAuth().revokeRefreshTokens(req.user.id);
         return res.send('Successfully logged out');
     }
 
@@ -75,11 +71,17 @@ export class UserController implements interfaces.Controller {
         TYPES.UserLoggedInMiddleWare
     )
     public async postVehicle(req: Request, res: Response) {
-        let user = await this._userSvc.findById(req.user.id).exec();
+        const user = req.user;
         let vh = await this._vhSvc.createVehicle(req.body);
         user.vehicles.push(vh);
         const result = await user.save();
         return res.json(await vehicleResource.collection(result.vehicles));
+    }
+
+    @httpPut('/me/vehicles/:id',
+        TYPES.UserLoggedInMiddleWare)
+    public async updateVehicle(@requestParam("id") id: string, res: Response) {
+            return res.send(id);
     }
 
     @httpGet('/me/vehicles',

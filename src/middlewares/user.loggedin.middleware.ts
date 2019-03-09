@@ -13,7 +13,6 @@ export class UserLoggedinMiddleware extends BaseMiddleware {
 
     handler(req: Request, res: Response, next: NextFunction): void {
         let actoken: any = req.headers['account-token'];
-        console.log(actoken);
         if (!actoken) {
             res.set('Account-Token', 'YOUR_ACCOUNT_TOKEN').status(401).send('HTTP Token: Access denied.\n')
             return;
