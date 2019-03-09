@@ -1,10 +1,12 @@
 import { Document, model as MongooseModel, Schema} from 'mongoose';
-import {boolean} from 'joi';
+import {IUser} from './user.model';
 
 export interface IVehicle extends Document {
+    _id: string,
     name: string;
     color: string;
-    owner: string;
+    owner: IUser;
+    archived: boolean,
     license_plate: string;
     fuel_volume_units: string;
     vehicle_type_model: string;
@@ -34,7 +36,7 @@ export const VehicleSchema = new Schema({
         enum: [
             'us_gallons',
             'uk_gallons',
-            'liters'
+            'litres'
         ]
     },
     vehicle_type_model: {
