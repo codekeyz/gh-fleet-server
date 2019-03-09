@@ -2,7 +2,6 @@ import {Document, model as MongooseModel, Schema} from 'mongoose';
 import {IVehicle} from './vehicle.model';
 
 export interface IUser extends Document {
-    _id: string,
     email: string;
     username: string;
     telephone: string;
@@ -12,10 +11,6 @@ export interface IUser extends Document {
 }
 
 export const UserSchema = new Schema({
-    _id: {
-        type: String,
-        required: true
-    },
     username: {
         type: String,
         required: true
@@ -33,8 +28,7 @@ export const UserSchema = new Schema({
     vehicles: [{type: Schema.Types.ObjectId, ref: 'Vehicle'}]
 }, {
     versionKey: false,
-    timestamps: true,
-    _id: false
+    timestamps: true
 });
 
 export const userModel = MongooseModel<IUser>("User", UserSchema);
