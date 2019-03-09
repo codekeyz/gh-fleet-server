@@ -1,5 +1,6 @@
 import {injectable} from 'inversify';
 import {IUser, userModel as User} from '../models/user.model';
+import * as mongoose from 'mongoose';
 
 @injectable()
 export class UserService {
@@ -16,7 +17,7 @@ export class UserService {
         return User.findOne({email})
     };
 
-    public createUser(data: IUser) {
+    public createUser(data: any) {
         return new Promise<IUser>((async (resolve, reject) => {
             try {
                 let account = await new User(data).save();
