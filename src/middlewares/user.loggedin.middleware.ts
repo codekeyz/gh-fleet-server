@@ -26,7 +26,7 @@ export class UserLoggedinMiddleware extends BaseMiddleware {
                 next();
             })
             .catch(err => {
-                res.status(401).send(`1HTTP Token: Access denied.\n${err}`)
+                res.status(401).send('HTTP Token: Access denied');
             })
     }
 
