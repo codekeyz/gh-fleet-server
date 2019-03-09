@@ -18,14 +18,14 @@ export class UserController implements interfaces.Controller {
                 @inject(TYPES.FirebaseService) private _firebSvc: FirebaseService) {
     }
 
-    @httpGet('/logout',
+     @httpGet('/logout',
         TYPES.UserLoggedInMiddleWare)
     public async logout(req: Request, res: Response) {
         await this._firebSvc.getAuth().revokeRefreshTokens(req.user.id);
         return res.send('Successfully logged out');
     }
 
-    @httpPost('/register',
+      @httpPost('/register',
         check('username')
             .isLength({min: 5})
             .withMessage('Username field is required'),
