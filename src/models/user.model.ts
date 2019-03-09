@@ -1,4 +1,3 @@
-import bcrypt = require('bcrypt');
 import {Document, model as MongooseModel, Schema} from 'mongoose';
 import {IVehicle} from './vehicle.model';
 
@@ -9,9 +8,7 @@ export interface IUser extends Document {
     telephone: string;
     createdAt: Date;
     updatedAt: Date;
-    vehicles: IVehicle[],
-
-    comparePassword(candidatePassword: string): Promise<boolean>;
+    vehicles: IVehicle[]
 }
 
 export const UserSchema = new Schema({
@@ -39,36 +36,6 @@ export const UserSchema = new Schema({
     timestamps: true,
     _id: false
 });
-
-UserSchema.pre("save", function <UserModel>(next) {
-    bcrypt.hash(this.password, 10, (err, hash) => {
-        this.password = hash;
-        next();
-    });
-});
-
-UserSchema.pre('update', function <UserModel>(next) {
-    bcrypt.hash(this.password, 10, (err, hash) => {
-        this.password = hash;
-        next();
-    });
-});
-
-UserSchema.methods.comparePassword = function (passw): Promise<boolean> {
-    let password = this.password;
-    return new Promise<boolean>((resolve, reject) => {
-        bcrypt.compare(passw, password, function (err, success) {
-            if (err) return reject(err);
-            return resolve(success);
-        });
-    })
-};
-
-UserSchema.methods.toJSON = function <IUser>() {
-    const obj = this.toObject();
-    delete obj.password;
-    return obj;
-};
 
 export const userModel = MongooseModel<IUser>("User", UserSchema);
 
