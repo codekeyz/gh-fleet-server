@@ -7,7 +7,7 @@ class UserResource implements BaseSanitizer<IUser> {
         return [];
     }
 
-    public single(data: IUser, wrap?: boolean): {} {
+    public single(data: IUser, wrap = true): {} {
         let result = {
             id: data._id,
             username: data.username,
@@ -18,7 +18,8 @@ class UserResource implements BaseSanitizer<IUser> {
         return wrap === true ? {data: result} : result;
     }
 
-    handleCollection(datalist: IUser[]) {}
+    handleCollection(datalist: IUser[]) {
+    }
 }
 
 export = new UserResource();
