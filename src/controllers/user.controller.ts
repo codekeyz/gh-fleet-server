@@ -1,7 +1,7 @@
 import {controller, httpDelete, httpGet, httpPost, httpPut, interfaces, requestParam} from 'inversify-express-utils';
 import {inject} from 'inversify';
 import {UserService} from '../services/user.service';
-import {NextFunction, Request, Response} from 'express';
+import {Request, Response} from 'express';
 import TYPES from '../config/di/types';
 import {body, check, param, validationResult} from 'express-validator/check';
 import {VehicleService} from '../services/vehicle.service';
@@ -9,7 +9,6 @@ import {FirebaseService} from '../services/firebase.service';
 import '../typings/express.user.module';
 import userResource = require('../resources/user.resource');
 import vehicleResource = require('../resources/vehicle.resource');
-import * as mongoose from 'mongoose';
 
 @controller('/users')
 export class UserController implements interfaces.Controller {
@@ -19,14 +18,14 @@ export class UserController implements interfaces.Controller {
                 @inject(TYPES.FirebaseService) private _firebSvc: FirebaseService) {
     }
 
-     @httpGet('/logout',
+    @httpGet('/logout',
         TYPES.UserLoggedInMiddleWare)
     public async logout(req: Request, res: Response) {
         await this._firebSvc.getAuth().revokeRefreshTokens(req.user.id);
         return res.send('Successfully logged out');
     }
 
-      @httpPost('/register',
+    @httpPost('/register',
         check('username')
             .isLength({min: 5})
             .withMessage('Username field is required'),
@@ -59,7 +58,7 @@ export class UserController implements interfaces.Controller {
         }
     }
 
-     @httpGet('/me',
+    @httpGet('/me',
         TYPES.UserLoggedInMiddleWare
     )
     public getMyAccount(req: Request, res: Response) {
@@ -67,9 +66,38 @@ export class UserController implements interfaces.Controller {
     }
 
     @httpPost('/me/vehicles',
-        TYPES.UserLoggedInMiddleWare
+        TYPES.UserLoggedInMiddleWare,
+        check('name')
+            .exists()
+            .withMessage('Name field is required'),
+        check('fuel_volume_units')
+            .isIn(['us_gallons', 'uk_gallons', 'litres'])
+            .withMessage('fuel_volume_units must be one of this [us_gallons, uk_gallons, litres]'),
+        check('archived')
+            .optional()
+            .not().isEmpty()
+            .isBoolean()
+            .withMessage('archived field requires a boolean'),
+        body('vehicle_type_name')
+            .optional()
+            .not().isEmpty()
+            .trim(),
+        body('name')
+            .optional()
+            .not().isEmpty()
+            .trim(),
+        body('color')
+            .optional()
+            .not().isEmpty()
+            .trim(),
     )
     public async postVehicle(req: Request, res: Response) {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({errors: errors.array()});
+        }
+
         const user = req.user;
         let vh = await this._vhSvc.createVehicle(user, req.body);
         user.vehicles.push(vh);
@@ -149,12 +177,29 @@ export class UserController implements interfaces.Controller {
         });
     }
 
-    @httpDelete('/me/vehicles/:id')
+    @httpDelete('/me/vehicles/:id',
+        TYPES.UserLoggedInMiddleWare,
+        param('id')
+            .exists()
+            .isMongoId()
+            .withMessage('Given value is not a valid ID'))
     public deleteVehicle(@requestParam('id') _id: string, req: Request, res: Response) {
 
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({errors: errors.array()});
+        }
+        let query = {};
+        query['_id'] = _id;
+        return this._vhSvc.deleteVehicle(query).then(result => {
+            console.log(result);
+            res.send(vehicleResource.single(result));
+        }).catch(err => {
+            res.send(err.message);
+        });
     }
 
-     @httpGet('/me/vehicles',
+    @httpGet('/me/vehicles',
         TYPES.UserLoggedInMiddleWare
     )
     public async getMyVehicles(req: Request, res: Response) {
