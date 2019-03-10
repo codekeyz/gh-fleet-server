@@ -8,7 +8,7 @@ export class VehicleService {
 
     public find = function (_id?, owner?) {
         let options = {};
-        if (owner){
+        if (owner) {
             options['owner'] = owner;
         }
         if (_id) {
@@ -21,12 +21,16 @@ export class VehicleService {
         data.owner = user;
         let vh = new Vehicle(data);
         return vh.save()
-    }
+    };
 
     public updateVehicle = function (query: {}, update: {}) {
         return Vehicle.findOneAndUpdate(query, update, {
             new: true,
         });
+    };
+
+    public deleteVehicle = function (query: {}) {
+        return Vehicle.findOneAndRemove(query);
     }
 }
 
