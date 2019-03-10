@@ -1,14 +1,15 @@
-import {controller, httpGet, httpPost, httpPut, interfaces, requestParam} from 'inversify-express-utils';
+import {controller, httpDelete, httpGet, httpPost, httpPut, interfaces, requestParam} from 'inversify-express-utils';
 import {inject} from 'inversify';
 import {UserService} from '../services/user.service';
 import {NextFunction, Request, Response} from 'express';
 import TYPES from '../config/di/types';
-import {body, check, validationResult} from 'express-validator/check';
+import {body, check, param, validationResult} from 'express-validator/check';
 import {VehicleService} from '../services/vehicle.service';
 import {FirebaseService} from '../services/firebase.service';
 import '../typings/express.user.module';
 import userResource = require('../resources/user.resource');
 import vehicleResource = require('../resources/vehicle.resource');
+import * as mongoose from 'mongoose';
 
 @controller('/users')
 export class UserController implements interfaces.Controller {
@@ -78,6 +79,10 @@ export class UserController implements interfaces.Controller {
 
     @httpPut('/me/vehicles/:id',
         TYPES.UserLoggedInMiddleWare,
+        param('id')
+            .exists()
+            .isMongoId()
+            .withMessage('Given value is not a valid ID'),
         body('name')
             .optional()
             .not().isEmpty()
@@ -101,7 +106,7 @@ export class UserController implements interfaces.Controller {
             .isBoolean()
             .withMessage('archived field requires a boolean')
     )
-    public updateVehicle(@requestParam("id") _id: string, req: Request, res: Response, next: NextFunction) {
+    public updateVehicle(@requestParam('id') _id: string, req: Request, res: Response) {
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -144,7 +149,12 @@ export class UserController implements interfaces.Controller {
         });
     }
 
-    @httpGet('/me/vehicles',
+    @httpDelete('/me/vehicles/:id')
+    public deleteVehicle(@requestParam('id') _id: string, req: Request, res: Response) {
+
+    }
+
+     @httpGet('/me/vehicles',
         TYPES.UserLoggedInMiddleWare
     )
     public async getMyVehicles(req: Request, res: Response) {
