@@ -26,6 +26,10 @@ export class VehicleService {
         return Vehicle.find(options);
     };
 
+    public findOneByQuery = function (query: {}) {
+        return Vehicle.findOne(query);
+    };
+
     public createVehicle = function (user: IUser, data: IVehicle) {
         data.owner = user;
         let vh = new Vehicle(data);

@@ -1,32 +1,18 @@
 import "reflect-metadata";
-import TYPES from './di/types';
 import * as config from './config';
-import {Container} from 'inversify';
-import {UserService} from '../services/user.service';
 import {InversifyExpressServer} from 'inversify-express-utils';
 import './mongoose';
 import './firebase';
 import '../controllers/user.controller';
 import '../controllers/vehicle.controller'
 import '../controllers/driver.controller'
-import {DriverService} from '../services/driver.service';
-import {VehicleService} from '../services/vehicle.service';
-import {FirebaseService} from '../services/firebase.service';
-import {UserLoggedinMiddleware} from '../middlewares/user.loggedin.middleware';
 import logger = require('morgan');
 import bodyParser = require('body-parser');
 import compress = require('compression');
 import helmet = require('helmet');
 import cors = require('cors');
-import httpError = require('http-errors');
+import container = require('./di/container');
 
-// load everything needed to the Container
-let container = new Container();
-container.bind<UserService>(TYPES.UserService).to(UserService);
-container.bind<DriverService>(TYPES.DriverService).to(DriverService);
-container.bind<VehicleService>(TYPES.VehicleService).to(VehicleService);
-container.bind<FirebaseService>(TYPES.FirebaseService).to(FirebaseService);
-container.bind<UserLoggedinMiddleware>(TYPES.UserLoggedInMiddleWare).to(UserLoggedinMiddleware);
 // create server
 let server = new InversifyExpressServer(container, null, {rootPath: `/api/v${config.version}`});
 server.setConfig(app => {
@@ -52,19 +38,12 @@ server.setConfig(app => {
 server.setErrorConfig(app => {
     // catch 404 and forward to error handler
     app.use((req, res, next) => {
-        const err = httpError(404);
-        return next(err);
+        return res.status(404).send('Requested route not found on this server');
     });
 
     // error handler, send stacktrace only during development
     app.use((err, req, res, next) => {
-        // customize Joi validation errors
-        if (err.isJoi) {
-            err.message = err.details.map(e => e.message).join('; ');
-            err.status = 400;
-        }
-
-        res.status(err.status || 500).json({
+        res.status(err.status || 400).json({
             message: err.message
         });
         next(err);
