@@ -4,7 +4,6 @@ import TYPES from '../config/di/types';
 import {Request, Response} from 'express';
 import {VehicleService} from '../services/vehicle.service';
 import vehicleResource = require('../resources/vehicle.resource');
-import {number} from 'joi';
 
 @controller('/vehicles')
 export class VehicleController {
@@ -19,13 +18,14 @@ export class VehicleController {
         @queryParam('vehicle_type_name') vehicle_type_name: string,
         @queryParam('archived') archived: boolean,
         @queryParam('offset') offset = `${0}`,
-        @queryParam('limit') limit = `${50}`,
+        @queryParam('limit') lim = `${50}`,
         req: Request,
         res: Response) {
+        const limit = parseInt(lim) > 50 ? 50 : parseInt(lim);
         try {
             const result = await this._vhSvc.find(null, null, color, fuel_volume_units, vehicle_type_name, archived)
                 .skip(parseInt(offset))
-                .limit(parseInt(limit))
+                .limit(limit)
                 .populate('owner')
                 .exec();
             const formattedresult = await vehicleResource.collection(result);

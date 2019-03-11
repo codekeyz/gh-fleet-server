@@ -30,7 +30,6 @@ class VehicleResource implements BaseSanitizer<IVehicle> {
     }
 
     private async handleCollection(datalist: IVehicle[]) {
-
         let result = [];
         let opts = datalist.map(vehicle => {
             result.push(this.single(vehicle, false))
