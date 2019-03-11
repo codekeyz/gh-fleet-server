@@ -30,13 +30,15 @@ class VehicleResource implements BaseSanitizer<IVehicle> {
     }
 
     private async handleCollection(datalist: IVehicle[]) {
+
         let result = [];
         let opts = datalist.map(vehicle => {
             result.push(this.single(vehicle, false))
         });
         await Promise.all(opts);
         return {
-            data: result
+            data: result,
+            count: datalist.length
         };
     }
 }
