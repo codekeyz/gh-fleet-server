@@ -98,11 +98,15 @@ export class UserController implements interfaces.Controller {
             return res.status(422).json({errors: errors.array()});
         }
 
-        const user = req.user;
-        let vh = await this._vhSvc.createVehicle(user, req.body);
-        user.vehicles.push(vh);
-        await user.save();
-        return res.json(await vehicleResource.single(vh));
+        try {
+            const user = req.user;
+            let vh = await this._vhSvc.createVehicle(user, req.body);
+            user.vehicles.push(vh);
+            await user.save();
+            return res.json(await vehicleResource.single(vh));
+        } catch (e) {
+            res.status(400).json(e);
+        }
     }
 
     @httpPut('/me/vehicles/:id',

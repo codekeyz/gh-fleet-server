@@ -1,6 +1,5 @@
 import {injectable} from 'inversify';
 import {IUser, userModel as User} from '../models/user.model';
-import * as mongoose from 'mongoose';
 
 @injectable()
 export class UserService {
