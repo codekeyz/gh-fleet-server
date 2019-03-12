@@ -1,11 +1,13 @@
-import { Document, model as MongooseModel, Schema} from 'mongoose';
+import {Document, model as MongooseModel, Schema} from 'mongoose';
 import {IUser} from './user.model';
+import {IImage, imageSchema} from './image.model';
 
 export interface IVehicle extends Document {
     _id: string,
     name: string;
     color: string;
     owner: IUser;
+    images: IImage[],
     archived: boolean,
     license_plate: string;
     fuel_volume_units: string;
@@ -47,6 +49,7 @@ export const VehicleSchema = new Schema({
         required: true
     },
     owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    images: [imageSchema]
 }, {
     versionKey: false,
     timestamps: true
