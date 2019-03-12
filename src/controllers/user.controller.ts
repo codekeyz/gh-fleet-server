@@ -9,6 +9,14 @@ import {FirebaseService} from '../services/firebase.service';
 import '../typings/express.user.module';
 import userResource = require('../resources/user.resource');
 import vehicleResource = require('../resources/vehicle.resource');
+import multer = require('multer');
+
+const vh_upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024 // no larger than 5mb, you can change as needed.,
+    }
+});
 
 @controller('/users')
 export class UserController implements interfaces.Controller {
@@ -195,11 +203,69 @@ export class UserController implements interfaces.Controller {
         }
         let query = {};
         query['_id'] = _id;
+        query['owner'] = req.user.id;
+
         return this._vhSvc.deleteVehicle(query).then(result => {
-            console.log(result);
             res.send(vehicleResource.single(result));
         }).catch(err => {
             res.send(err.message);
+        });
+    }
+
+    @httpPost('/me/vehicles/:id/upload',
+        // TYPES.UserLoggedInMiddleWare,
+        param('id')
+            .exists()
+            .isMongoId()
+            .withMessage('Given value is not a valid ID'),
+        ((req1, res1, next) => {
+            return vh_upload.single('image')(req1, res1, function (err) {
+                if (err)
+                    return next(new Error(err.message));
+
+                if (!req1.file)
+                    return next(new Error('A file is required in the request object'));
+
+                next();
+            })
+        }))
+    public async uploadVehicleImages(@requestParam('id') _id: string, req: Request, res: Response) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({errors: errors.array()});
+        }
+
+        let query = {};
+        query['_id'] = _id;
+        // query['owner'] = req.user.id;
+
+        const doc = await this._vhSvc.findOneByQuery(query);
+
+        if (!doc) {
+            return res.status(404).json({
+                message: 'Requested resource does not exists',
+                data: null,
+                success: false
+            });
+        }
+        const fileExt = req.file.originalname.split('.')[1];
+        const newFilename = `${doc.id}-${new Date().getTime()}.${fileExt}`;
+        const file = this._firebSvc.getStorage().bucket().file(`Vehicles/${doc.id}/${newFilename}`);
+        return file.save(req.file.buffer, {
+            metadata: {
+                contentType: req.file.mimetype
+            },
+            public: true,
+            gzip: true,
+        }).then(() => {
+            return file.get()
+        }).then(res => {
+            const imageUrl = res[0].metadata.mediaLink;
+            return this._vhSvc.setImageforVehicle(doc, imageUrl);
+        }).then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err);
         });
     }
 
@@ -210,7 +276,5 @@ export class UserController implements interfaces.Controller {
         let result = await this._userSvc.findById(req.user.id).populate('vehicles').exec();
         return res.json(await vehicleResource.collection(result.vehicles))
     }
-
-
 }
 
