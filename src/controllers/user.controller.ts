@@ -225,7 +225,7 @@ export class UserController implements interfaces.Controller {
     }
 
     @httpPost('/me/vehicles/:id/images/upload',
-        // TYPES.UserMiddleWare,
+        TYPES.UserMiddleWare,
         param('id')
             .exists()
             .isMongoId()
@@ -241,7 +241,7 @@ export class UserController implements interfaces.Controller {
 
         let query = {};
         query['_id'] = _id;
-        // query['owner'] = req.user.id;
+        query['owner'] = req.user.id;
 
         const doc = await this._vhSvc.findOneByQuery(query);
 
