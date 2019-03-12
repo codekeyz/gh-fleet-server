@@ -7,6 +7,7 @@ import {body, check, param, validationResult} from 'express-validator/check';
 import {VehicleService} from '../services/vehicle.service';
 import {FirebaseService} from '../services/firebase.service';
 import '../typings/express.user.module';
+import {accepted_extensions} from '../middlewares/image.middleware';
 import userResource = require('../resources/user.resource');
 import vehicleResource = require('../resources/vehicle.resource');
 import multer = require('multer');
@@ -14,9 +15,20 @@ import multer = require('multer');
 const vh_upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        fileSize: 5 * 1024 * 1024 // no larger than 5mb, you can change as needed.,
+        fileSize: 5 * 1024 * 1024,// no larger than 5mb, you can change as needed.,
+        files: 1                  // 1 file
+    },
+    fileFilter: (req, file, cb) => {
+        // if the file extension is in our accepted list
+        if (accepted_extensions.some(ext => file.originalname.endsWith("." + ext))) {
+            return cb(null, true);
+        }
+
+        // otherwise, return error
+        return cb(new Error('Only ' + accepted_extensions.join(", ") + ' files are allowed!'), false);
     }
 });
+
 
 @controller('/users')
 export class UserController implements interfaces.Controller {
@@ -27,7 +39,7 @@ export class UserController implements interfaces.Controller {
     }
 
     @httpGet('/logout',
-        TYPES.UserLoggedInMiddleWare)
+        TYPES.UserMiddleWare)
     public async logout(req: Request, res: Response) {
         await this._firebSvc.getAuth().revokeRefreshTokens(req.user.id);
         return res.send('Successfully logged out');
@@ -67,14 +79,14 @@ export class UserController implements interfaces.Controller {
     }
 
     @httpGet('/me',
-        TYPES.UserLoggedInMiddleWare
+        TYPES.UserMiddleWare
     )
     public getMyAccount(req: Request, res: Response) {
         return res.json(userResource.single(req.user));
     }
 
     @httpPost('/me/vehicles',
-        TYPES.UserLoggedInMiddleWare,
+        TYPES.UserMiddleWare,
         check('name')
             .exists()
             .withMessage('Name field is required'),
@@ -118,7 +130,7 @@ export class UserController implements interfaces.Controller {
     }
 
     @httpPut('/me/vehicles/:id',
-        TYPES.UserLoggedInMiddleWare,
+        TYPES.UserMiddleWare,
         param('id')
             .exists()
             .isMongoId()
@@ -190,7 +202,7 @@ export class UserController implements interfaces.Controller {
     }
 
     @httpDelete('/me/vehicles/:id',
-        TYPES.UserLoggedInMiddleWare,
+        TYPES.UserMiddleWare,
         param('id')
             .exists()
             .isMongoId()
@@ -212,23 +224,15 @@ export class UserController implements interfaces.Controller {
         });
     }
 
-    @httpPost('/me/vehicles/:id/upload',
-        // TYPES.UserLoggedInMiddleWare,
+    @httpPost('/me/vehicles/:id/images/upload',
+        // TYPES.UserMiddleWare,
         param('id')
             .exists()
             .isMongoId()
             .withMessage('Given value is not a valid ID'),
-        ((req1, res1, next) => {
-            return vh_upload.single('image')(req1, res1, function (err) {
-                if (err)
-                    return next(new Error(err.message));
-
-                if (!req1.file)
-                    return next(new Error('A file is required in the request object'));
-
-                next();
-            })
-        }))
+        vh_upload.single('image'),
+        TYPES.ImageMiddleware,
+    )
     public async uploadVehicleImages(@requestParam('id') _id: string, req: Request, res: Response) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -260,17 +264,18 @@ export class UserController implements interfaces.Controller {
         }).then(() => {
             return file.get()
         }).then(res => {
-            const imageUrl = res[0].metadata.mediaLink;
-            return this._vhSvc.setImageforVehicle(doc, imageUrl);
-        }).then(res => {
-            console.log(res);
+            const link = res[0].metadata.mediaLink;
+            const name = res[0].metadata.name;
+            return this._vhSvc.setImageforVehicle(doc, {name, link});
+        }).then(result => {
+            res.send(vehicleResource.single(result))
         }).catch(err => {
             console.log(err);
         });
     }
 
     @httpGet('/me/vehicles',
-        TYPES.UserLoggedInMiddleWare
+        TYPES.UserMiddleWare
     )
     public async getMyVehicles(req: Request, res: Response) {
         let result = await this._userSvc.findById(req.user.id).populate('vehicles').exec();
