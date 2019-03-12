@@ -38,13 +38,19 @@ server.setConfig(app => {
 server.setErrorConfig(app => {
     // catch 404 and forward to error handler
     app.use((req, res, next) => {
-        return res.status(404).send('Requested route not found on this server');
+        return res.status(404).json({
+            message: 'Requested route not found on this server',
+            success: false,
+            data: null
+        });
     });
 
     // error handler, send stacktrace only during development
     app.use((err, req, res, next) => {
-        res.status(err.status || 400).json({
-            message: err.message
+        res.status(err.status || 422).json({
+            message: err.message,
+            success: false,
+            data: null
         });
         next(err);
     });

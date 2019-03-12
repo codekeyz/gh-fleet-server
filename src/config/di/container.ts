@@ -5,13 +5,14 @@ import TYPES from './types';
 import {DriverService} from '../../services/driver.service';
 import {VehicleService} from '../../services/vehicle.service';
 import {FirebaseService} from '../../services/firebase.service';
-import {UserLoggedinMiddleware} from '../../middlewares/user.loggedin.middleware';
+import {UserMiddleware} from '../../middlewares/user.middleware';
+import {ImageMiddleware} from '../../middlewares/image.middleware';
 
 let container = new Container();
 container.bind<UserService>(TYPES.UserService).to(UserService);
 container.bind<DriverService>(TYPES.DriverService).to(DriverService);
 container.bind<VehicleService>(TYPES.VehicleService).to(VehicleService);
 container.bind<FirebaseService>(TYPES.FirebaseService).to(FirebaseService);
-container.bind<UserLoggedinMiddleware>(TYPES.UserLoggedInMiddleWare).to(UserLoggedinMiddleware);
-
+container.bind<UserMiddleware>(TYPES.UserMiddleWare).to(UserMiddleware);
+container.bind<ImageMiddleware>(TYPES.ImageMiddleware).to(ImageMiddleware);
 export = container;

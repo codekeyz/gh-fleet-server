@@ -3,7 +3,8 @@ const TYPES = {
     VehicleService: Symbol.for('VehicleService'),
     DriverService: Symbol.for('DriverService'),
     FirebaseService: Symbol.for('FirebaseService'),
-    UserLoggedInMiddleWare: Symbol.for('UserLoggedInMiddleWare')
+    UserMiddleWare: Symbol.for('UserMiddleWare'),
+    ImageMiddleware: Symbol.for('ImageMiddleware')
 };
 
 export default TYPES;
