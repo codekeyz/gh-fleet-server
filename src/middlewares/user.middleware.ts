@@ -6,7 +6,7 @@ import {FirebaseService} from '../services/firebase.service';
 import {UserService} from '../services/user.service';
 
 @injectable()
-export class UserLoggedinMiddleware extends BaseMiddleware {
+export class UserMiddleware extends BaseMiddleware {
 
     @inject(TYPES.FirebaseService) private readonly _fbSvc: FirebaseService;
     @inject(TYPES.UserService) private readonly _userSvc: UserService;
