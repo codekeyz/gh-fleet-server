@@ -1,4 +1,5 @@
 import {IVehicle} from '../models/vehicle.model';
+import {IImage} from '../models/image.model';
 import BaseSanitizer = require('./base.sanitizer');
 
 class VehicleResource implements BaseSanitizer<IVehicle> {
@@ -23,18 +24,20 @@ class VehicleResource implements BaseSanitizer<IVehicle> {
                     email: data.owner.email,
                     telephone: data.owner.telephone
                 },
+                images: data.images,
                 createdAt: data.createdAt,
                 updatedAt: data.updatedAt,
             };
         return wrap === true ? {data: result} : result;
     }
 
+
     private async handleCollection(datalist: IVehicle[]) {
         let result = [];
         let opts = datalist.map(vehicle => {
             result.push(this.single(vehicle, false))
         });
-        await Promise.all(opts);
+        await opts;
         return {
             data: result,
             count: datalist.length
