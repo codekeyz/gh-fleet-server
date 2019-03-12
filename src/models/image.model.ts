@@ -1,13 +1,19 @@
-import { Document, model as MongooseModel, Schema} from 'mongoose';
+import {Document, model as MongooseModel, Schema} from 'mongoose';
 
 export interface IImage extends Document {
     _id: string,
+    name: string;
     link: string
 }
 
 export const imageSchema = new Schema({
     link: {
-        type: String
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
     }
 }, {
     versionKey: false,
