@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {IVehicle, vehicleModel as Vehicle} from '../models/vehicle.model';
 import {IUser} from '../models/user.model';
-
+import {imageModel as Image} from '../models/image.model';
 
 @injectable()
 export class VehicleService {
@@ -40,6 +40,12 @@ export class VehicleService {
         return Vehicle.findOneAndUpdate(query, update, {
             new: true,
         });
+    };
+
+    public setImageforVehicle = async function (doc: IVehicle, link: string) {
+        let im = new Image({link});
+        doc.images.push(im);
+        return doc.save();
     };
 
     public deleteVehicle = function (query: {}) {
