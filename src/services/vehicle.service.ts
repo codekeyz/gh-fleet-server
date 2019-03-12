@@ -42,8 +42,8 @@ export class VehicleService {
         });
     };
 
-    public setImageforVehicle = async function (doc: IVehicle, link: string) {
-        let im = new Image({link});
+    public setImageforVehicle = async function (doc: IVehicle, data: {link: string, name: string}) {
+        let im = new Image(data);
         doc.images.push(im);
         return doc.save();
     };
