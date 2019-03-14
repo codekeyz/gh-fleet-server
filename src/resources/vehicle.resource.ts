@@ -1,14 +1,13 @@
 import {IVehicle} from '../models/vehicle.model';
-import {IImage} from '../models/image.model';
 import BaseSanitizer = require('./base.sanitizer');
 
 class VehicleResource implements BaseSanitizer<IVehicle> {
 
-    public collection(datalist: IVehicle[]) {
-        return this.handleCollection(datalist);
+    public collection(datalist: IVehicle[], ownerinfo = true) {
+        return this.handleCollection(datalist, ownerinfo);
     }
 
-    public single(data: IVehicle, wrap = true): {} {
+    public single(data: IVehicle, ownerinfo = true, wrap = true): {} {
         let result =
             {
                 id: data._id,
@@ -19,11 +18,11 @@ class VehicleResource implements BaseSanitizer<IVehicle> {
                 fuel_volume_units: data.fuel_volume_units,
                 vehicle_type_model: data.vehicle_type_model,
                 vehicle_type_name: data.vehicle_type_name,
-                owner: {
+                owner: ownerinfo === true ? {
                     username: data.owner.username,
                     email: data.owner.email,
                     telephone: data.owner.telephone
-                },
+                } : null,
                 images: data.images,
                 createdAt: data.createdAt,
                 updatedAt: data.updatedAt,
@@ -32,10 +31,10 @@ class VehicleResource implements BaseSanitizer<IVehicle> {
     }
 
 
-    private async handleCollection(datalist: IVehicle[]) {
+    private async handleCollection(datalist: IVehicle[], ownerinfo = true) {
         let result = [];
         let opts = datalist.map(vehicle => {
-            result.push(this.single(vehicle, false))
+            result.push(this.single(vehicle, ownerinfo, false))
         });
         await opts;
         return {

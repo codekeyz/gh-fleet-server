@@ -26,6 +26,7 @@ export class UserMiddleware extends BaseMiddleware {
                 next();
             })
             .catch(err => {
+                console.log(err);
                 res.status(401).send('HTTP Token: Access denied');
             })
     }

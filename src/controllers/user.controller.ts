@@ -1,4 +1,13 @@
-import {controller, httpDelete, httpGet, httpPost, httpPut, interfaces, requestParam} from 'inversify-express-utils';
+import {
+    controller,
+    httpDelete,
+    httpGet,
+    httpPost,
+    httpPut,
+    interfaces,
+    queryParam,
+    requestParam
+} from 'inversify-express-utils';
 import {inject} from 'inversify';
 import {UserService} from '../services/user.service';
 import {Request, Response} from 'express';
@@ -277,9 +286,27 @@ export class UserController implements interfaces.Controller {
     @httpGet('/me/vehicles',
         TYPES.UserMiddleWare
     )
-    public async getMyVehicles(req: Request, res: Response) {
-        let result = await this._userSvc.findById(req.user.id).populate('vehicles').exec();
-        return res.json(await vehicleResource.collection(result.vehicles))
+    public async getMyVehicles(@queryParam('color') color: string,
+                               @queryParam('fuel_volume_units') fuel_volume_units: string,
+                               @queryParam('vehicle_type_name') vehicle_type_name: string,
+                               @queryParam('archived') archived: boolean,
+                               @queryParam('offset') offset = `${0}`,
+                               @queryParam('limit') lim = `${50}`,
+                               req: Request,
+                               res: Response) {
+        const limit = parseInt(lim) > 50 ? 50 : parseInt(lim);
+        const user = req.user.id;
+        try {
+            const result = await this._vhSvc.find(null, user, color, fuel_volume_units, vehicle_type_name, archived)
+                .skip(parseInt(offset))
+                .limit(limit)
+                .exec();
+            const formattedresult = await vehicleResource.collection(result, false);
+            res.send(formattedresult);
+        } catch (e) {
+            console.log(e);
+            res.status(400).send(e);
+        }
     }
 }
 
