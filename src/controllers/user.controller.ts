@@ -284,7 +284,6 @@ export class UserController implements interfaces.Controller {
         });
         return Promise.all(allTasks)
             .then((result: any[]) => {
-                console.log(result);
                 res.status(200).json({
                     message: 'Action completed successfully.',
                     data: result[result.length - 1].images,
