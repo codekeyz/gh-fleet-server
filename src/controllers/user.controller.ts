@@ -25,7 +25,7 @@ const vh_upload = multer({
     storage: multer.memoryStorage(),
     limits: {
         fileSize: 5 * 1024 * 1024,// no larger than 5mb, you can change as needed.,
-        files: 1                  // 1 file
+        files: 3                  // 3 files
     },
     fileFilter: (req, file, cb) => {
         // if the file extension is in our accepted list
@@ -239,8 +239,7 @@ export class UserController implements interfaces.Controller {
             .exists()
             .isMongoId()
             .withMessage('Given value is not a valid ID'),
-        vh_upload.single('image'),
-        TYPES.ImageMiddleware,
+        vh_upload.array('images', 3)
     )
     public async uploadVehicleImages(@requestParam('id') _id: string, req: Request, res: Response) {
         const errors = validationResult(req);
@@ -261,26 +260,44 @@ export class UserController implements interfaces.Controller {
                 success: false
             });
         }
-        const fileExt = req.file.originalname.split('.')[1];
-        const newFilename = `${doc.id}-${new Date().getTime()}.${fileExt}`;
-        const file = this._firebSvc.getStorage().bucket().file(`Vehicles/${doc.id}/${newFilename}`);
-        return file.save(req.file.buffer, {
-            metadata: {
-                contentType: req.file.mimetype
-            },
-            public: true,
-            gzip: true,
-        }).then(() => {
-            return file.get()
-        }).then(res => {
-            const link = res[0].metadata.mediaLink;
-            const name = res[0].metadata.name;
-            return this._vhSvc.setImageforVehicle(doc, {name, link});
-        }).then(result => {
-            res.send(vehicleResource.single(result))
-        }).catch(err => {
-            console.log(err);
+
+        const files: any = req.files;
+        const allTasks = await files.map(file => {
+            const fileExt = file.originalname.split('.')[1];
+            const newFilename = `${doc.id}-${new Date().getTime()}.${fileExt}`;
+            const task = this._firebSvc.getStorage().bucket().file(`Vehicles/${doc.id}/${newFilename}`);
+            return task.save(file.buffer, {
+                metadata: {
+                    contentType: file.mimetype
+                },
+                public: true,
+                gzip: true,
+            })
+                .then(() => {
+                    return task.get();
+                })
+                .then(res => {
+                    const link = res[0].metadata.mediaLink;
+                    const name = res[0].metadata.name;
+                    return this._vhSvc.setImageforVehicle(doc, {name, link});
+                });
         });
+        return Promise.all(allTasks)
+            .then((result: any[]) => {
+                console.log(result);
+                res.status(200).json({
+                    message: 'Action completed successfully.',
+                    data: result[result.length - 1].images,
+                    success: true
+                });
+            })
+            .catch(err => {
+                res.status(500).json({
+                    message: 'An error occurred. Verify Data & Try again.',
+                    data: null,
+                    success: false
+                });
+            });
     }
 
     @httpGet('/me/vehicles',
