@@ -114,11 +114,7 @@ export class UserController implements interfaces.Controller {
         body('name')
             .optional()
             .not().isEmpty()
-            .trim(),
-        body('color')
-            .optional()
-            .not().isEmpty()
-            .trim(),
+            .trim()
     )
     public async postVehicle(req: Request, res: Response) {
 
@@ -145,10 +141,6 @@ export class UserController implements interfaces.Controller {
             .isMongoId()
             .withMessage('Given value is not a valid ID'),
         body('name')
-            .optional()
-            .not().isEmpty()
-            .trim(),
-        body('color')
             .optional()
             .not().isEmpty()
             .trim(),
@@ -180,16 +172,12 @@ export class UserController implements interfaces.Controller {
         query['owner'] = req.user.id;
 
         let name = req.body.name;
-        let color = req.body.color;
         let volume = req.body.fuel_volume_units;
         let vtypename = req.body.vehicle_type_name;
         let archived: boolean = req.body.archived;
 
         if (name) {
             update['name'] = name;
-        }
-        if (color) {
-            update['color'] = color;
         }
         if (volume) {
             update['fuel_volume_units'] = volume;
@@ -302,7 +290,7 @@ export class UserController implements interfaces.Controller {
     @httpGet('/me/vehicles',
         TYPES.UserMiddleWare
     )
-    public async getMyVehicles(@queryParam('color') color: string,
+    public async getMyVehicles(
                                @queryParam('fuel_volume_units') fuel_volume_units: string,
                                @queryParam('vehicle_type_name') vehicle_type_name: string,
                                @queryParam('archived') archived: boolean,
@@ -313,7 +301,7 @@ export class UserController implements interfaces.Controller {
         const limit = parseInt(lim) > 50 ? 50 : parseInt(lim);
         const user = req.user.id;
         try {
-            const result = await this._vhSvc.find(null, user, color, fuel_volume_units, vehicle_type_name, archived)
+            const result = await this._vhSvc.find(null, user, fuel_volume_units, vehicle_type_name, archived)
                 .skip(parseInt(offset))
                 .limit(limit)
                 .exec();

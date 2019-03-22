@@ -12,7 +12,6 @@ class VehicleResource implements BaseSanitizer<IVehicle> {
             {
                 id: data._id,
                 name: data.name,
-                color: data.color,
                 archived: data.archived,
                 license_plate: data.license_plate,
                 fuel_volume_units: data.fuel_volume_units,

@@ -23,7 +23,7 @@ export class VehicleController {
         res: Response) {
         const limit = parseInt(lim) > 50 ? 50 : parseInt(lim);
         try {
-            const result = await this._vhSvc.find(null, null, color, fuel_volume_units, vehicle_type_name, archived)
+            const result = await this._vhSvc.find(null, null, fuel_volume_units, vehicle_type_name, archived)
                 .skip(parseInt(offset))
                 .limit(limit)
                 .populate('owner')

@@ -6,13 +6,10 @@ import {imageModel as Image} from '../models/image.model';
 @injectable()
 export class VehicleService {
 
-    public find = function (_id?, owner?, color?, fuel_volume_units?, vehicle_type_name?, archived = false) {
+    public find = function (_id?, owner?, fuel_volume_units?, vehicle_type_name?, archived = false) {
         let options = {archived};
         if (owner) {
             options['owner'] = owner;
-        }
-        if (color) {
-            options['color'] = {'$regex': color, $options: 'i'};
         }
         if (_id) {
             options['_id'] = _id;

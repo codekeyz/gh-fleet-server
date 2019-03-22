@@ -5,7 +5,6 @@ import {IImage, imageSchema} from './image.model';
 export interface IVehicle extends Document {
     _id: string,
     name: string;
-    color: string;
     owner: IUser;
     images: IImage[],
     archived: boolean,
@@ -21,9 +20,6 @@ export const VehicleSchema = new Schema({
     name: {
         type: String,
         required: true
-    },
-    color: {
-        type: String
     },
     license_plate: {
         type: String
