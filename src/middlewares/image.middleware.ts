@@ -2,7 +2,7 @@ import {injectable} from 'inversify';
 import {BaseMiddleware} from 'inversify-express-utils';
 import {NextFunction, Request, Response} from 'express';
 
-export const accepted_extensions = ['jpg', 'png'];
+export const accepted_extensions = ['jpg', 'png', 'webp'];
 
 
 @injectable()

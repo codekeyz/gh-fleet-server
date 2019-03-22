@@ -128,7 +128,7 @@ export class UserController implements interfaces.Controller {
             let vh = await this._vhSvc.createVehicle(user, req.body);
             user.vehicles.push(vh);
             await user.save();
-            return res.json(await vehicleResource.single(vh));
+            return res.json(vehicleResource.single(vh));
         } catch (e) {
             res.status(400).json(e);
         }
@@ -192,7 +192,7 @@ export class UserController implements interfaces.Controller {
         return this._vhSvc.updateVehicle(query, {
             $set: update
         }).then(result => {
-            res.send(vehicleResource.single(result));
+            res.send(vehicleResource.single(result, false));
         }).catch(err => {
             res.send(err.message);
         });
@@ -215,7 +215,7 @@ export class UserController implements interfaces.Controller {
         query['owner'] = req.user.id;
 
         return this._vhSvc.deleteVehicle(query).then(result => {
-            res.send(vehicleResource.single(result));
+            res.send(vehicleResource.single(result, false));
         }).catch(err => {
             res.send(err.message);
         });
@@ -291,13 +291,13 @@ export class UserController implements interfaces.Controller {
         TYPES.UserMiddleWare
     )
     public async getMyVehicles(
-                               @queryParam('fuel_volume_units') fuel_volume_units: string,
-                               @queryParam('vehicle_type_name') vehicle_type_name: string,
-                               @queryParam('archived') archived: boolean,
-                               @queryParam('offset') offset = `${0}`,
-                               @queryParam('limit') lim = `${50}`,
-                               req: Request,
-                               res: Response) {
+        @queryParam('fuel_volume_units') fuel_volume_units: string,
+        @queryParam('vehicle_type_name') vehicle_type_name: string,
+        @queryParam('archived') archived: boolean,
+        @queryParam('offset') offset = `${0}`,
+        @queryParam('limit') lim = `${50}`,
+        req: Request,
+        res: Response) {
         const limit = parseInt(lim) > 50 ? 50 : parseInt(lim);
         const user = req.user.id;
         try {
@@ -311,6 +311,28 @@ export class UserController implements interfaces.Controller {
             console.log(e);
             res.status(400).send(e);
         }
+    }
+
+    @httpGet('/me/vehicles/:id',
+        TYPES.UserMiddleWare,
+        param('id')
+            .exists()
+            .isMongoId()
+            .withMessage('Given value is not a valid ID'),)
+    public async getVehicle(@requestParam('id') _id: string, req: Request, res: Response) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({errors: errors.array()});
+        }
+        let vh = await this._vhSvc.findOneByQuery({_id});
+        if (!vh) {
+            return res.status(404).json({
+                message: 'Requested resource does not exists',
+                data: null,
+                success: false
+            });
+        }
+        return res.send(vehicleResource.single(vh, false));
     }
 }
 
