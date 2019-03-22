@@ -265,7 +265,7 @@ export class UserController implements interfaces.Controller {
         const allTasks = await files.map(file => {
             const fileExt = file.originalname.split('.')[1];
             const newFilename = `${doc.id}-${new Date().getTime()}.${fileExt}`;
-            const task = this._firebSvc.getStorage().bucket().file(`Vehicles/${doc.id}/${newFilename}`);
+            const task = this._firebSvc.getStorage().bucket().file(`Vehicles/${req.user.id}/${doc.id}/${newFilename}`);
             return task.save(file.buffer, {
                 metadata: {
                     contentType: file.mimetype
