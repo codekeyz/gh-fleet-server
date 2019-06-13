@@ -1,9 +1,12 @@
 ﻿# Transport Backend System
-A test User-Driver-Vehicle Backend System using the following dependencies
+ 
+A test User-Driver-Vehicle NodeJS Backend System using the following dependencies
 - Express
-- Nodejs
 - Typescript
 - MongoDB
-- H3.js
-- Socket.io
+- Firebase Auth
+- Firebase Storage
 
+## Frontend
+
+Checkout the frontend for this project here https://gh-fleet.netlify.com
